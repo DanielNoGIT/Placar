@@ -68,7 +68,7 @@ public class PlacarActivity extends AppCompatActivity {
 
                 // Volta pra tela principal e avisa o usuário
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Partida Encerrada com Sucesso!", Toast.Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Partida Encerrada com Sucesso!", Toast.LENGTH_SHORT).show();
                     finish();
                 });
             }).start();

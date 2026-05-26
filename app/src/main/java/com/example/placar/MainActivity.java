@@ -46,9 +46,9 @@ public class MainActivity extends AppCompatActivity {
         adapter = new PartidaAdapter(listaPartidas, partida -> {
             Intent intent = new Intent(MainActivity.this, PlacarActivity.class);
 
-            // Colocamos o ID e o Nome na "bagagem" da Intent para a próxima tela usar
-            intent.putExtra("PARTIDA_ID", partida.id);
-            intent.putExtra("NOME_JOGO", partida.nomeDoJogo);
+            // CORREÇÃO: Usando getId() e getNomeDoJogo() para respeitar o encapsulamento POO
+            intent.putExtra("PARTIDA_ID", partida.getId());
+            intent.putExtra("NOME_JOGO", partida.getNomeDoJogo());
 
             startActivity(intent);
         });
@@ -59,9 +59,6 @@ public class MainActivity extends AppCompatActivity {
         textTotalPartidas = findViewById(R.id.textTotalPartidas);
         textPartidasAndamento = findViewById(R.id.textPartidasAndamento);
 
-        // =========================================================
-        // MUDANÇA 1: Adicionado bem aqui, no final do onCreate!
-        // =========================================================
         // Faz a área de estatísticas funcionar como botão para o Histórico
         findViewById(R.id.layoutStats).setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, HistoricoActivity.class));
@@ -75,10 +72,6 @@ public class MainActivity extends AppCompatActivity {
         carregarPartidasDoBanco();
     }
 
-    // =========================================================
-    // MUDANÇA 2: O método inteiro carregarPartidasDoBanco foi
-    // substituído para filtrar os jogos finalizados!
-    // =========================================================
     private void carregarPartidasDoBanco() {
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
@@ -88,7 +81,8 @@ public class MainActivity extends AppCompatActivity {
             // Separa apenas os jogos que ainda estão rolando para mostrar na lista principal
             List<Partida> partidasEmAndamento = new ArrayList<>();
             for (Partida p : partidasDoBanco) {
-                if (p.emAndamento) {
+                // CORREÇÃO: Usando isEmAndamento() em vez do acesso direto
+                if (p.isEmAndamento()) {
                     partidasEmAndamento.add(p);
                 }
             }
@@ -109,7 +103,8 @@ public class MainActivity extends AppCompatActivity {
         int emAndamento = 0;
 
         for (Partida p : partidas) {
-            if (p.emAndamento) {
+            // CORREÇÃO: Usando isEmAndamento() para a contagem correta das estatísticas
+            if (p.isEmAndamento()) {
                 emAndamento++;
             }
         }

@@ -26,7 +26,6 @@ public class NovaPartidaActivity extends AppCompatActivity {
     private TextView textVoltar;
     private RecyclerView recyclerJogadores;
 
-    // Variáveis para a lista na tela
     private JogadorSetupAdapter adapter;
     private List<String> nomesJogadores = new ArrayList<>();
 
@@ -55,26 +54,22 @@ public class NovaPartidaActivity extends AppCompatActivity {
         btnIniciarPartida.setOnClickListener(v -> salvarNoBanco());
     }
 
-    // Cria um Pop-up nativo do Android para digitar o nome
     private void abrirDialogNovoJogador() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Novo Jogador");
 
-        // Cria um campo de texto dentro do pop-up
         final EditText input = new EditText(this);
         input.setHint("Ex: Maria");
         builder.setView(input);
 
-        // Botão de confirmar
         builder.setPositiveButton("Adicionar", (dialog, which) -> {
             String nome = input.getText().toString().trim();
             if (!nome.isEmpty()) {
                 nomesJogadores.add(nome);
-                adapter.notifyItemInserted(nomesJogadores.size() - 1); // Avisa a lista para atualizar
+                adapter.notifyItemInserted(nomesJogadores.size() - 1);
             }
         });
 
-        // Botão de cancelar
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
 
         builder.show();
@@ -83,34 +78,32 @@ public class NovaPartidaActivity extends AppCompatActivity {
     private void salvarNoBanco() {
         String nomeJogo = editNomeJogo.getText().toString().trim();
 
-        // Validações básicas
+        // CORREÇÃO: Removido o "Toast.Toast" duplicado das validações
         if (nomeJogo.isEmpty()) {
-            Toast.makeText(this, "Digite o nome do jogo!", Toast.Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Digite o nome do jogo!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (nomesJogadores.isEmpty()) {
-            Toast.makeText(this, "Adicione pelo menos um jogador!", Toast.Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Adicione pelo menos um jogador!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Operação CREATE no banco (em Thread separada)
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
 
-            // Passo A: Salva a Partida e recupera o ID gerado pelo banco
+            // CORREÇÃO: Agora o construtor da Partida existe e bate perfeitamente com o modelo!
             Partida novaPartida = new Partida(nomeJogo, true, System.currentTimeMillis());
             long idPartidaGerado = db.placarDao().inserirPartida(novaPartida);
 
-            // Passo B: Salva cada jogador associando-o ao ID da partida criada
             for (String nomeJogador : nomesJogadores) {
                 JogadorPartida jogador = new JogadorPartida((int) idPartidaGerado, nomeJogador, 0);
                 db.placarDao().inserirJogador(jogador);
             }
 
-            // Volta para a tela principal
             runOnUiThread(() -> {
-                Toast.makeText(this, "Partida criada com sucesso!", Toast.Toast.LENGTH_SHORT).show();
+                // CORREÇÃO: Ajustado para Toast.LENGTH_SHORT simples
+                Toast.makeText(this, "Partida criada com sucesso!", Toast.LENGTH_SHORT).show();
                 finish();
             });
         }).start();
